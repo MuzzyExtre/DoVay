@@ -1,0 +1,44 @@
+{
+  "name": "dovay",
+  "version": "0.1.0",
+  "description": "AI assistant for Dota 2 - Auto Accept",
+  "main": "out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "dependencies": {
+    "@fontsource/ibm-plex-mono": "^5.2.7",
+    "@fontsource/sora": "^5.2.8",
+    "@nut-tree-fork/nut-js": "^4.2.6",
+    "framer-motion": "^11.3.19",
+    "jimp": "^0.22.12",
+    "lucide-react": "^1.8.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "screenshot-desktop": "^1.12.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3",
+    "electron-vite": "^2.3.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.5.2"
+  },
+  "build": {
+    "appId": "tech.digtai.dovay",
+    "productName": "Dovay",
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis"
+    }
+  }
+}

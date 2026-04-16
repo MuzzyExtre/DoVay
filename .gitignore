@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+build/
+
+# Node (legacy)
+node_modules/
+out/
+package-lock.json
+
+# IDE / tools
+.claude/
+.playwright-mcp/
+.vscode/
+.idea/
+
+# Screenshots & images
+*.png
+*.jpg
+*.jpeg
+
+# Logs
+*.log
+
+# Windows
+*.reg
+Thumbs.db
+
+# Electron legacy
+src/
+electron.vite.config.ts
+tsconfig.json
+start.bat

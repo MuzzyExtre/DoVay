@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DoVay</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Background Atmospheric Element -->
+        <div class="bg-orb"></div>
+        <div class="bg-orb orb-red"></div>
+
+        <!-- Header -->
+        <header class="drag-region">
+            <div class="logo">
+                <div class="logo-dot"></div>
+                <h1>DoVay</h1>
+                <span class="version">v0.3</span>
+            </div>
+            <div class="controls no-drag">
+                <button id="btn-overlay" class="overlay-btn active" title="Оверлей">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>
+                    </svg>
+                </button>
+                <button id="btn-min" title="Свернуть">
+                    <svg width="12" height="2" viewBox="0 0 12 2"><rect width="12" height="2" rx="1" fill="currentColor"/></svg>
+                </button>
+                <button id="btn-close" class="close" title="Закрыть">
+                    <svg width="12" height="12" viewBox="0 0 12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <!-- Status Card -->
+            <div class="glass-card status-card">
+                <div class="radar">
+                    <div class="radar-glow"></div>
+                    <div class="ripple r1" id="ripple1"></div>
+                    <div class="ripple r2" id="ripple2"></div>
+                    <div class="center-orb" id="center-orb">
+                        <div class="orb-core" id="orb-core"></div>
+                        <svg class="check-icon" id="check-icon" width="18" height="14" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 5L5 9L13 1" />
+                        </svg>
+                    </div>
+                </div>
+                <h2 id="status-label">ОЖИДАНИЕ</h2>
+                <p id="status-message">Готов к запуску</p>
+            </div>
+
+            <!-- Toggle Switch -->
+            <div class="toggle-container">
+                <div class="switch" id="main-switch">
+                    <div class="switch-track"></div>
+                    <div class="switch-thumb">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                </div>
+                <div class="toggle-label" id="toggle-label">АКТИВИРОВАТЬ СКАНИРОВАНИЕ</div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Event Log -->
+            <div class="event-log-container">
+                <div class="log-header">
+                    <span>СОБЫТИЯ</span>
+                    <div class="line"></div>
+                </div>
+                <div class="log-list" id="log-list">
+                    <div class="empty-log">Журнал пуст</div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+pywebview
+mss
+numpy
+pypiwin32
+Pillow
