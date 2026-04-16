@@ -1,5 +1,6 @@
 pywebview
 mss
 numpy
+opencv-python
 pypiwin32
 Pillow

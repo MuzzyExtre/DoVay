@@ -22,6 +22,12 @@ package-lock.json
 *.png
 *.jpg
 *.jpeg
+debug_scan.png
+
+# Шаблоны для template matching — нужны для работы
+!templates/
+!templates/*.png
+templates/_preview_crop.png
 
 # Logs
 *.log
