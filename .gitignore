@@ -32,6 +32,12 @@ templates/_preview_crop.png
 # Logs
 *.log
 
+# Runtime settings (per-user)
+settings.json
+
+# PyInstaller spec
+*.spec
+
 # Windows
 *.reg
 Thumbs.db

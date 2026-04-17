@@ -10,6 +10,23 @@ import datetime
 import os
 import ctypes.wintypes
 
+# Файл с пользовательскими настройками
+_SETTINGS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'settings.json')
+
+def _load_settings():
+    try:
+        with open(_SETTINGS_PATH, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+def _save_settings(data):
+    try:
+        with open(_SETTINGS_PATH, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"[WARN] save settings: {e}")
+
 # Шаблон кнопки Accept (загружается один раз)
 _TEMPLATE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates', 'accept_button.png')
 ACCEPT_TEMPLATE = cv2.imread(_TEMPLATE_PATH)
@@ -91,7 +108,14 @@ class Api:
         self._window = None
         self._hwnd = None
         self.loop_active = False
-        self.overlay_active = True
+        self.compact_mode = False
+        self.position_locked = False
+        self._saved_size = (420, 720)
+        self._saved_pos = None
+        self._resize_start = None
+        # Прозрачность оверлея (0–255), хранится как процент 40–100
+        self._settings = _load_settings()
+        self.overlay_alpha_pct = int(self._settings.get('overlay_alpha_pct', 92))
 
     def set_window(self, window):
         self._window = window
@@ -113,40 +137,114 @@ class Api:
         if self._window: self._window.minimize()
 
     def start_drag(self, screen_x, screen_y):
-        """JS вызывает при mousedown на header — запоминаем смещение"""
-        if self._window:
-            self._drag_offset_x = screen_x - self._window.x
-            self._drag_offset_y = screen_y - self._window.y
+        if self.position_locked or not self._window:
+            return
+        self._drag_offset_x = screen_x - self._window.x
+        self._drag_offset_y = screen_y - self._window.y
 
     def do_drag(self, screen_x, screen_y):
-        """JS вызывает при mousemove — двигаем окно"""
-        if self._window and hasattr(self, '_drag_offset_x'):
+        if self.position_locked or not self._window:
+            return
+        if hasattr(self, '_drag_offset_x'):
             self._window.move(
                 screen_x - self._drag_offset_x,
                 screen_y - self._drag_offset_y
             )
 
-    def toggle_overlay(self):
-        """Переключаем: окно поверх всех / обычное"""
-        if not self._hwnd:
-            return self.overlay_active
-        
-        user32 = ctypes.windll.user32
-        HWND_TOPMOST = -1
-        HWND_NOTOPMOST = -2
-        SWP_NOMOVE = 0x0002
-        SWP_NOSIZE = 0x0001
-        
-        self.overlay_active = not self.overlay_active
-        
-        if self.overlay_active:
-            user32.SetWindowPos(self._hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE)
-            self.send_event('info', '📌 Оверлей: ВКЛ')
+    def toggle_lock(self):
+        self.position_locked = not self.position_locked
+        self.send_event('info', '🔒 Позиция закреплена' if self.position_locked else '🔓 Позиция свободна')
+        return self.position_locked
+
+    def start_resize(self, screen_x, screen_y):
+        if not self._window:
+            return
+        try:
+            self._resize_start = (screen_x, screen_y, self._window.width, self._window.height)
+        except Exception:
+            self._resize_start = (screen_x, screen_y, 420, 720)
+
+    def do_resize(self, screen_x, screen_y):
+        if not self._window or not self._resize_start:
+            return
+        sx, sy, w0, h0 = self._resize_start
+        new_w = max(320, w0 + (screen_x - sx))
+        new_h = max(240, h0 + (screen_y - sy))
+        self._window.resize(int(new_w), int(new_h))
+
+    def toggle_compact(self):
+        """Переключаем компактный HUD ↔ полный интерфейс"""
+        if not self._window:
+            return self.compact_mode
+        self.compact_mode = not self.compact_mode
+        if self.compact_mode:
+            try:
+                self._saved_size = (self._window.width, self._window.height)
+                self._saved_pos = (self._window.x, self._window.y)
+            except Exception:
+                pass
+            self._window.resize(300, 64)
+            if self._hwnd:
+                _apply_layered_transparency(self._hwnd, True, self._alpha_byte())
+            self.send_event('info', 'Компактный режим')
         else:
-            user32.SetWindowPos(self._hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE)
-            self.send_event('info', '📌 Оверлей: ВЫКЛ')
-        
-        return self.overlay_active
+            if self._hwnd:
+                _apply_layered_transparency(self._hwnd, False)
+            w, h = self._saved_size
+            self._window.resize(w, h)
+            if self._saved_pos:
+                self._window.move(*self._saved_pos)
+            self.send_event('info', 'Полный режим')
+        return self.compact_mode
+
+    def _alpha_byte(self):
+        """Процент 40–100 → байт 102–255"""
+        pct = max(40, min(100, int(self.overlay_alpha_pct)))
+        return int(round(pct * 255 / 100))
+
+    def get_overlay_alpha(self):
+        """Текущая прозрачность оверлея в процентах"""
+        return int(self.overlay_alpha_pct)
+
+    def set_overlay_alpha(self, pct):
+        """Изменить прозрачность оверлея (40–100%) и применить мгновенно если активен compact"""
+        try:
+            pct = max(40, min(100, int(pct)))
+        except (TypeError, ValueError):
+            return self.overlay_alpha_pct
+        self.overlay_alpha_pct = pct
+        self._settings['overlay_alpha_pct'] = pct
+        _save_settings(self._settings)
+        if self.compact_mode and self._hwnd:
+            _apply_layered_transparency(self._hwnd, True, self._alpha_byte())
+        return pct
+
+    def set_position_preset(self, preset):
+        """Перемещает окно в один из угловых пресетов экрана"""
+        if not self._hwnd or not self._window:
+            return
+        user32 = ctypes.windll.user32
+        sw = user32.GetSystemMetrics(0)
+        sh = user32.GetSystemMetrics(1)
+        rect = ctypes.wintypes.RECT()
+        user32.GetWindowRect(self._hwnd, ctypes.byref(rect))
+        ww = rect.right - rect.left
+        wh = rect.bottom - rect.top
+        m = 14
+        taskbar = 56
+        positions = {
+            'tl': (m, m),
+            'tc': ((sw - ww) // 2, m),
+            'tr': (sw - ww - m, m),
+            'bl': (m, sh - wh - m - taskbar),
+            'bc': ((sw - ww) // 2, sh - wh - m - taskbar),
+            'br': (sw - ww - m, sh - wh - m - taskbar),
+            'cc': ((sw - ww) // 2, (sh - wh) // 2),
+        }
+        if preset in positions:
+            x, y = positions[preset]
+            self._window.move(x, y)
+            self.send_event('info', f'Позиция: {preset.upper()}')
 
     def debug(self):
         self.send_event('info', 'Debug screenshot saved')
@@ -266,12 +364,67 @@ class Api:
 # ═══════════════════════════════════════════════
 #  Поиск HWND после старта (для overlay toggle)
 # ═══════════════════════════════════════════════
+def _set_window_corners(hwnd, rounded):
+    """Win11 DWM corner preference.
+    rounded=True: скруглённые углы + системная тень (полный режим)
+    rounded=False: квадратные углы без тени (compact-overlay)"""
+    try:
+        DWMWA_WINDOW_CORNER_PREFERENCE = 33
+        DWMWCP_ROUND = 2
+        DWMWCP_DONOTROUND = 1
+        pref = ctypes.c_int(DWMWCP_ROUND if rounded else DWMWCP_DONOTROUND)
+        ctypes.windll.dwmapi.DwmSetWindowAttribute(
+            hwnd, DWMWA_WINDOW_CORNER_PREFERENCE,
+            ctypes.byref(pref), ctypes.sizeof(pref))
+    except Exception as e:
+        print(f"[WARN] DWM corner pref: {e}")
+
+
+def _round_window_corners(hwnd):
+    """Backwards-compat: скруглить (на старте)"""
+    _set_window_corners(hwnd, True)
+
+
+# ═══════════════════════════════════════════════
+#  Прозрачность через WS_EX_LAYERED + color-key
+#  (Edge/WebView2 не поддерживает per-pixel alpha,
+#   color-key делает заданный цвет фона полностью
+#   прозрачным — desktop виден насквозь)
+# ═══════════════════════════════════════════════
+GWL_EXSTYLE = -20
+WS_EX_LAYERED = 0x00080000
+LWA_COLORKEY = 0x00000001
+LWA_ALPHA = 0x00000002
+SWP_NOMOVE = 0x0002
+SWP_NOSIZE = 0x0001
+SWP_NOZORDER = 0x0004
+SWP_FRAMECHANGED = 0x0020
+# CSS-цвет #FE00FF → COLORREF 0x00BBGGRR = 0x00FF00FE
+KEY_COLOR_REF = 0x00FF00FE
+
+def _apply_layered_transparency(hwnd, compact, alpha=235):
+    """compact=True: окно становится 'плавающим' — magenta-фон CSS = прозрачный.
+    compact=False: убираем layered, окно полностью непрозрачное.
+    alpha: 0–255, прозрачность всей панели поверх desktop."""
+    user32 = ctypes.windll.user32
+    style = user32.GetWindowLongW(hwnd, GWL_EXSTYLE)
+    if compact:
+        user32.SetWindowLongW(hwnd, GWL_EXSTYLE, style | WS_EX_LAYERED)
+        user32.SetLayeredWindowAttributes(hwnd, KEY_COLOR_REF, int(alpha),
+                                          LWA_COLORKEY | LWA_ALPHA)
+    else:
+        user32.SetWindowLongW(hwnd, GWL_EXSTYLE, style & ~WS_EX_LAYERED)
+    user32.SetWindowPos(hwnd, 0, 0, 0, 0, 0,
+                        SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED)
+
+
 def on_started(api):
     time.sleep(1.0)
     user32 = ctypes.windll.user32
     hwnd = user32.FindWindowW(None, 'DoVay')
     if hwnd:
         api._hwnd = hwnd
+        _round_window_corners(hwnd)
         print(f"[OK] HWND: {hwnd}")
     else:
         print("[WARN] HWND not found")
@@ -289,16 +442,18 @@ if __name__ == '__main__':
         exit(1)
         
     window = webview.create_window(
-        'DoVay', 
-        url=f'file:///{html_path}', 
+        'DoVay',
+        url=f'file:///{html_path}',
         js_api=api,
-        width=400, 
-        height=600,
-        frameless=True,            # Чистый виджет, без системного заголовка
-        easy_drag=False,           # Мы сами управляем drag через CSS
-        resizable=False,
+        width=420,
+        height=720,
+        min_size=(300, 60),
+        frameless=True,
+        easy_drag=False,
+        resizable=True,
         on_top=True,
-        background_color='#060609' # Тёмный фон = нет белых углов
+        transparent=False,
+        background_color='#060609'
     )
     api.set_window(window)
     webview.start(func=on_started, args=(api,))

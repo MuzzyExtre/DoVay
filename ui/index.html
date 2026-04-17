@@ -7,25 +7,71 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="app-container">
-        <!-- Background Atmospheric Element -->
+        <!-- Атмосферный фон: одно мягкое свечение, без рябей и сеток -->
         <div class="bg-orb"></div>
-        <div class="bg-orb orb-red"></div>
+
+        <!-- ════════════════════════════════════════ -->
+        <!-- FULL VIEW                                 -->
+        <!-- ════════════════════════════════════════ -->
+        <div class="full-view">
 
         <!-- Header -->
         <header class="drag-region">
             <div class="logo">
-                <div class="logo-dot"></div>
-                <h1>DoVay</h1>
-                <span class="version">v0.3</span>
+                <div class="logo-mark">
+                    <svg class="logo-svg" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#22e3ff"/>
+                                <stop offset="55%" stop-color="#8b5cf6"/>
+                                <stop offset="100%" stop-color="#5b21b6"/>
+                            </linearGradient>
+                            <linearGradient id="logo-shine" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28"/>
+                                <stop offset="50%" stop-color="#ffffff" stop-opacity="0"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- Скруглённый тайл с градиентом -->
+                        <rect class="lm-tile" x="1" y="1" width="30" height="30" rx="9" fill="url(#logo-grad)"/>
+                        <!-- Глянцевый блик сверху -->
+                        <rect class="lm-shine" x="2" y="2" width="28" height="14" rx="8" fill="url(#logo-shine)"/>
+                        <!-- Буква D через evenodd (внешняя форма + внутренний вырез) -->
+                        <path class="lm-letter" fill-rule="evenodd"
+                              d="M 9 8 L 9 24 L 16.5 24 C 22 24 25.5 20.5 25.5 16 C 25.5 11.5 22 8 16.5 8 Z
+                                 M 13.5 12 L 16.5 12 C 19.5 12 21.5 14 21.5 16 C 21.5 18 19.5 20 16.5 20 L 13.5 20 Z"/>
+                        <!-- Маленькая точка-акцент справа (как зелёный индикатор) -->
+                        <circle class="lm-dot" cx="27" cy="6" r="2.4"/>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <h1 class="logo-title">DoVay</h1>
+                    <span class="logo-bar"></span>
+                </div>
             </div>
             <div class="controls no-drag">
-                <button id="btn-overlay" class="overlay-btn active" title="Оверлей">
+                <button id="btn-lock" title="Закрепить позицию">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+                    </svg>
+                </button>
+                <button id="btn-position" title="Позиция">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/>
+                        <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+                    </svg>
+                </button>
+                <button id="btn-settings" title="Настройки">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                </button>
+                <button id="btn-overlay" title="Компактный режим">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="14" width="9" height="7" rx="1.5"/><rect x="3" y="3" width="18" height="8" rx="1.5"/>
                     </svg>
                 </button>
                 <button id="btn-min" title="Свернуть">
@@ -35,52 +81,207 @@
                     <svg width="12" height="12" viewBox="0 0 12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg>
                 </button>
             </div>
+            <div class="header-accent"></div>
         </header>
 
         <main>
             <!-- Status Card -->
             <div class="glass-card status-card">
+                <span class="corner tl"></span>
+                <span class="corner tr"></span>
+                <span class="corner bl"></span>
+                <span class="corner br"></span>
+
+                <!-- Mini-header: ID / title / system status -->
+                <div class="card-header">
+                    <span class="ch-id">SCN_01</span>
+                    <span class="ch-divider"></span>
+                    <span class="ch-title">MATCH FINDER</span>
+                    <span class="ch-flex"></span>
+                    <span class="ch-system" id="ch-system">
+                        <span class="ch-sys-dot"></span>
+                        <span class="ch-sys-text">STANDBY</span>
+                    </span>
+                </div>
+
+                <!-- ═════════ NEW RADAR ═════════ -->
                 <div class="radar">
+                    <!-- Внешние угловые скобки HUD -->
+                    <span class="radar-bracket tl"></span>
+                    <span class="radar-bracket tr"></span>
+                    <span class="radar-bracket bl"></span>
+                    <span class="radar-bracket br"></span>
+
+                    <!-- Дальняя засветка -->
                     <div class="radar-glow"></div>
-                    <div class="ripple r1" id="ripple1"></div>
-                    <div class="ripple r2" id="ripple2"></div>
+
+                    <!-- Кольца + засечки -->
+                    <div class="radar-ring r-out"></div>
+                    <div class="radar-ring r-mid"></div>
+                    <div class="radar-ring r-in"></div>
+                    <div class="radar-ticks"></div>
+
+                    <!-- Кресты-наводка -->
+                    <div class="radar-cross h"></div>
+                    <div class="radar-cross v"></div>
+
+                    <!-- Развёрстка (conic-gradient sweep) -->
+                    <div class="radar-sweep"></div>
+
+                    <!-- Пульс-кольца -->
+                    <div class="pulse p1"></div>
+                    <div class="pulse p2"></div>
+                    <div class="pulse p3"></div>
+
+                    <!-- Точка-цель (появляется на match_found) -->
+                    <div class="radar-target"></div>
+
+                    <!-- Центральное ядро -->
                     <div class="center-orb" id="center-orb">
                         <div class="orb-core" id="orb-core"></div>
-                        <svg class="check-icon" id="check-icon" width="18" height="14" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M1 5L5 9L13 1" />
+                        <svg class="check-icon" id="check-icon" width="22" height="18" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 5L5 9L13 1"/>
                         </svg>
                     </div>
+
+                    <!-- Подписи по углам HUD -->
+                    <span class="radar-tag tl">N-01</span>
+                    <span class="radar-tag tr">SCAN</span>
+                    <span class="radar-tag bl">3FPS</span>
+                    <span class="radar-tag br">RDY</span>
                 </div>
+
                 <h2 id="status-label">ОЖИДАНИЕ</h2>
                 <p id="status-message">Готов к запуску</p>
             </div>
 
-            <!-- Toggle Switch -->
-            <div class="toggle-container">
-                <div class="switch" id="main-switch">
-                    <div class="switch-track"></div>
-                    <div class="switch-thumb">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                    </div>
-                </div>
-                <div class="toggle-label" id="toggle-label">АКТИВИРОВАТЬ СКАНИРОВАНИЕ</div>
-            </div>
-
-            <div class="divider"></div>
+            <!-- Primary Action -->
+            <button class="primary-action" id="main-switch">
+                <span class="pa-shimmer"></span>
+                <span class="pa-glow"></span>
+                <span class="pa-icon-wrap">
+                    <svg class="pa-icon-play" width="11" height="13" viewBox="0 0 11 13" fill="currentColor">
+                        <polygon points="0,0 11,6.5 0,13"/>
+                    </svg>
+                    <svg class="pa-icon-stop" width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
+                        <rect width="10" height="10" rx="1.5"/>
+                    </svg>
+                </span>
+                <span class="pa-label" id="toggle-label">ЗАПУСТИТЬ СКАНИРОВАНИЕ</span>
+                <span class="pa-hotkey">SPACE</span>
+            </button>
 
             <!-- Event Log -->
             <div class="event-log-container">
                 <div class="log-header">
-                    <span>СОБЫТИЯ</span>
+                    <span class="log-title">СОБЫТИЯ</span>
+                    <span class="log-count" id="log-count">0</span>
                     <div class="line"></div>
                 </div>
                 <div class="log-list" id="log-list">
-                    <div class="empty-log">Журнал пуст</div>
+                    <div class="empty-log">
+                        <div class="empty-icon"></div>
+                        <span>Журнал пуст</span>
+                    </div>
                 </div>
             </div>
         </main>
+
+        </div><!-- /.full-view -->
+
+        <!-- ════════════════════════════════════════ -->
+        <!-- COMPACT HUD VIEW                          -->
+        <!-- ════════════════════════════════════════ -->
+        <div class="compact-view">
+            <div class="compact-bar drag-region">
+                <div class="compact-status">
+                    <div class="compact-radar">
+                        <span class="cr-ring"></span>
+                        <span class="cr-sweep"></span>
+                        <span class="cr-core"></span>
+                    </div>
+                    <div class="compact-text">
+                        <span class="compact-label" id="compact-label">ОЖИДАНИЕ</span>
+                        <span class="compact-msg" id="compact-msg">Готов</span>
+                    </div>
+                </div>
+                <div class="compact-counter">
+                    <svg width="11" height="9" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 5L5 9L13 1"/>
+                    </svg>
+                    <span id="compact-counter-value">0</span>
+                </div>
+                <div class="compact-controls no-drag">
+                    <button id="btn-compact-lock" class="compact-btn" title="Закрепить позицию">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+                    </button>
+                    <button id="btn-compact-toggle" class="compact-btn" title="Старт/стоп">
+                        <svg width="9" height="11" viewBox="0 0 9 11" fill="currentColor">
+                            <polygon points="0,0 9,5.5 0,11"/>
+                        </svg>
+                    </button>
+                    <button id="btn-compact-position" class="compact-btn" title="Позиция">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg>
+                    </button>
+                    <button id="btn-compact-expand" class="compact-btn" title="Развернуть">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                    </button>
+                    <button id="btn-compact-close" class="compact-btn close" title="Закрыть">
+                        <svg width="10" height="10" viewBox="0 0 12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resize handle (только в полном режиме) -->
+        <div class="resize-handle" id="resize-handle" title="Растянуть">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <line x1="13" y1="5" x2="5" y2="13"/>
+                <line x1="13" y1="9" x2="9" y2="13"/>
+                <line x1="13" y1="13" x2="13" y2="13"/>
+            </svg>
+        </div>
+
+        <!-- ════════════════════════════════════════ -->
+        <!-- POSITION PRESET MENU                      -->
+        <!-- ════════════════════════════════════════ -->
+        <div class="position-menu" id="position-menu">
+            <div class="position-grid">
+                <button data-pos="tl" title="Сверху слева"><span></span></button>
+                <button data-pos="tc" title="Сверху по центру"><span></span></button>
+                <button data-pos="tr" title="Сверху справа"><span></span></button>
+                <button data-pos="cc" title="По центру экрана"><span></span></button>
+                <button data-pos="cc" class="hidden-cell"></button>
+                <button data-pos="cc" class="hidden-cell"></button>
+                <button data-pos="bl" title="Снизу слева"><span></span></button>
+                <button data-pos="bc" title="Снизу по центру"><span></span></button>
+                <button data-pos="br" title="Снизу справа"><span></span></button>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════ -->
+        <!-- SETTINGS MODAL                            -->
+        <!-- ════════════════════════════════════════ -->
+        <div class="settings-modal" id="settings-modal">
+            <div class="settings-panel no-drag">
+                <div class="settings-header">
+                    <span class="settings-title">НАСТРОЙКИ</span>
+                    <button id="btn-settings-close" class="settings-close" title="Закрыть">
+                        <svg width="11" height="11" viewBox="0 0 12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg>
+                    </button>
+                </div>
+                <div class="settings-body">
+                    <div class="setting-row">
+                        <div class="setting-label">
+                            <span class="setting-name">Прозрачность оверлея</span>
+                            <span class="setting-value" id="alpha-value">92%</span>
+                        </div>
+                        <input type="range" id="alpha-slider" class="setting-slider" min="40" max="100" step="1" value="92">
+                        <span class="setting-hint">В компактном режиме</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
