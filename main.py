@@ -8,10 +8,30 @@ import numpy as np
 import cv2
 import datetime
 import os
+import sys
 import ctypes.wintypes
 
-# Файл с пользовательскими настройками
-_SETTINGS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'settings.json')
+
+def _resource_path(rel):
+    """Путь к ресурсу: рядом с .py при разработке, внутри _MEIPASS — при PyInstaller --onefile"""
+    base = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base, rel)
+
+
+def _user_data_dir():
+    """Каталог для пользовательских данных:
+    - bundled EXE: %APPDATA%/DoVay/ (чтобы не сорить рядом с EXE)
+    - dev: рядом с main.py"""
+    if getattr(sys, 'frozen', False):
+        base = os.environ.get('APPDATA') or os.path.expanduser('~')
+        path = os.path.join(base, 'DoVay')
+        os.makedirs(path, exist_ok=True)
+        return path
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+# Файл с пользовательскими настройками — всегда рядом с EXE / main.py
+_SETTINGS_PATH = os.path.join(_user_data_dir(), 'settings.json')
 
 def _load_settings():
     try:
@@ -28,7 +48,7 @@ def _save_settings(data):
         print(f"[WARN] save settings: {e}")
 
 # Шаблон кнопки Accept (загружается один раз)
-_TEMPLATE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates', 'accept_button.png')
+_TEMPLATE_PATH = _resource_path(os.path.join('templates', 'accept_button.png'))
 ACCEPT_TEMPLATE = cv2.imread(_TEMPLATE_PATH)
 if ACCEPT_TEMPLATE is None:
     print(f'[WARN] Шаблон не найден: {_TEMPLATE_PATH}')
@@ -312,9 +332,9 @@ class Api:
                 try:
                     img = np.array(sct.grab(bbox))[:, :, :3]  # BGRA → BGR
 
-                    # Debug снимок каждые 5 сек
-                    if t0 - last_debug > 5:
-                        cv2.imwrite(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'debug_scan.png'), img)
+                    # Debug снимок только в режиме разработки
+                    if not getattr(sys, 'frozen', False) and t0 - last_debug > 5:
+                        cv2.imwrite(os.path.join(_user_data_dir(), 'debug_scan.png'), img)
                         last_debug = t0
 
                     # Template matching на нескольких масштабах (на случай разного UI scale)
@@ -436,7 +456,7 @@ def on_started(api):
 if __name__ == '__main__':
     api = Api()
     
-    html_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ui', 'index.html')
+    html_path = _resource_path(os.path.join('ui', 'index.html'))
     if not os.path.exists(html_path):
         print(f"File not found: {html_path}")
         exit(1)
