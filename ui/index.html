@@ -55,12 +55,8 @@
             <div class="controls no-drag">
                 <button id="btn-lock" title="Закрепить позицию">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
-                    </svg>
-                </button>
-                <button id="btn-position" title="Позиция">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+                        <line x1="12" y1="17" x2="12" y2="22"/>
+                        <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/>
                     </svg>
                 </button>
                 <button id="btn-settings" title="Настройки">
@@ -104,8 +100,8 @@
                     </span>
                 </div>
 
-                <!-- ═════════ NEW RADAR ═════════ -->
-                <div class="radar">
+                <!-- ═════════ RADAR = TOGGLE (Amnezia VPN style) ═════════ -->
+                <div class="radar" id="main-switch" role="button" tabindex="0" aria-label="Запустить сканирование" title="Клик или SPACE — старт/стоп">
                     <!-- Внешние угловые скобки HUD -->
                     <span class="radar-bracket tl"></span>
                     <span class="radar-bracket tr"></span>
@@ -136,9 +132,13 @@
                     <!-- Точка-цель (появляется на match_found) -->
                     <div class="radar-target"></div>
 
-                    <!-- Центральное ядро -->
+                    <!-- Центральное ядро (с power-иконкой когда idle) -->
                     <div class="center-orb" id="center-orb">
                         <div class="orb-core" id="orb-core"></div>
+                        <svg class="power-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"/>
+                            <line x1="12" y1="2" x2="12" y2="12"/>
+                        </svg>
                         <svg class="check-icon" id="check-icon" width="22" height="18" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M1 5L5 9L13 1"/>
                         </svg>
@@ -153,23 +153,8 @@
 
                 <h2 id="status-label">ОЖИДАНИЕ</h2>
                 <p id="status-message">Готов к запуску</p>
+                <span class="toggle-hint"><span id="toggle-label">ВКЛЮЧИТЬ</span> · клик или <kbd>SPACE</kbd></span>
             </div>
-
-            <!-- Primary Action -->
-            <button class="primary-action" id="main-switch">
-                <span class="pa-shimmer"></span>
-                <span class="pa-glow"></span>
-                <span class="pa-icon-wrap">
-                    <svg class="pa-icon-play" width="11" height="13" viewBox="0 0 11 13" fill="currentColor">
-                        <polygon points="0,0 11,6.5 0,13"/>
-                    </svg>
-                    <svg class="pa-icon-stop" width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
-                        <rect width="10" height="10" rx="1.5"/>
-                    </svg>
-                </span>
-                <span class="pa-label" id="toggle-label">ЗАПУСТИТЬ СКАНИРОВАНИЕ</span>
-                <span class="pa-hotkey">SPACE</span>
-            </button>
 
             <!-- Event Log -->
             <div class="event-log-container">
@@ -205,23 +190,23 @@
                         <span class="compact-msg" id="compact-msg">Готов</span>
                     </div>
                 </div>
-                <div class="compact-counter">
-                    <svg width="11" height="9" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M1 5L5 9L13 1"/>
-                    </svg>
-                    <span id="compact-counter-value">0</span>
-                </div>
                 <div class="compact-controls no-drag">
                     <button id="btn-compact-lock" class="compact-btn" title="Закрепить позицию">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="17" x2="12" y2="22"/>
+                            <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/>
+                        </svg>
                     </button>
                     <button id="btn-compact-toggle" class="compact-btn" title="Старт/стоп">
                         <svg width="9" height="11" viewBox="0 0 9 11" fill="currentColor">
                             <polygon points="0,0 9,5.5 0,11"/>
                         </svg>
                     </button>
-                    <button id="btn-compact-position" class="compact-btn" title="Позиция">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg>
+                    <button id="btn-compact-settings" class="compact-btn" title="Настройки">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                        </svg>
                     </button>
                     <button id="btn-compact-expand" class="compact-btn" title="Развернуть">
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
@@ -242,22 +227,6 @@
             </svg>
         </div>
 
-        <!-- ════════════════════════════════════════ -->
-        <!-- POSITION PRESET MENU                      -->
-        <!-- ════════════════════════════════════════ -->
-        <div class="position-menu" id="position-menu">
-            <div class="position-grid">
-                <button data-pos="tl" title="Сверху слева"><span></span></button>
-                <button data-pos="tc" title="Сверху по центру"><span></span></button>
-                <button data-pos="tr" title="Сверху справа"><span></span></button>
-                <button data-pos="cc" title="По центру экрана"><span></span></button>
-                <button data-pos="cc" class="hidden-cell"></button>
-                <button data-pos="cc" class="hidden-cell"></button>
-                <button data-pos="bl" title="Снизу слева"><span></span></button>
-                <button data-pos="bc" title="Снизу по центру"><span></span></button>
-                <button data-pos="br" title="Снизу справа"><span></span></button>
-            </div>
-        </div>
 
         <!-- ════════════════════════════════════════ -->
         <!-- SETTINGS MODAL                            -->

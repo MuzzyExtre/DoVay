@@ -516,12 +516,27 @@ body.accepted .corner { border-color: var(--color-neon-cyan); }
    ═══════════════════════════════════════════════ */
 .radar {
   --radar-size: clamp(170px, 45vw, 200px);
+  --radar-color: var(--color-neon-violet);
   position: relative;
   width: var(--radar-size);
   height: var(--radar-size);
   display: flex; justify-content: center; align-items: center;
   margin: 10px 0 18px 0;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+.radar:hover { transform: scale(1.03); }
+.radar:active { transform: scale(0.98); }
+.radar:focus-visible { outline: none; }
+.radar:focus-visible .center-orb {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--radar-color) 50%, transparent);
+}
+body.scanning .radar { --radar-color: var(--color-neon-cyan); }
+body.match_found .radar { --radar-color: var(--color-neon-pink); }
+body.accepted .radar { --radar-color: var(--color-neon-cyan); }
+body.scanning .radar:hover { --radar-color: var(--color-error); }
 
 /* HUD brackets */
 .radar-bracket {
@@ -671,11 +686,25 @@ body.accepted .corner { border-color: var(--color-neon-cyan); }
   transition: all 0.5s;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 }
-.orb-core {
-  width: 8px; height: 8px;
+/* orb-core убран — дублировал power-иконку и засорял центр */
+.orb-core { display: none; }
+
+/* Ripple — расходится при каждом клике по радару */
+.center-orb::after {
+  content: '';
+  position: absolute;
+  inset: 0;
   border-radius: 50%;
-  background: var(--color-text-dim);
-  transition: all 0.5s;
+  border: 2px solid var(--radar-color);
+  opacity: 0;
+  pointer-events: none;
+}
+.radar.clicked .center-orb::after {
+  animation: orb-ripple 0.65s ease-out;
+}
+@keyframes orb-ripple {
+  0%   { transform: scale(1);   opacity: 0.9; border-width: 2px; }
+  100% { transform: scale(2.6); opacity: 0;   border-width: 0px; }
 }
 .check-icon {
   display: none;
@@ -720,10 +749,7 @@ body.scanning .center-orb {
     inset 0 0 12px rgba(78, 225, 208, 0.25);
   animation: orb-pulse 2.2s infinite ease-in-out;
 }
-body.scanning .orb-core {
-  background: var(--color-neon-cyan);
-  box-shadow: 0 0 14px var(--color-neon-cyan);
-}
+/* (orb-core отключён глобально, см. правило выше) */
 
 body.match_found .radar-glow {
   background: radial-gradient(circle, var(--color-neon-pink), transparent 60%);
@@ -813,106 +839,64 @@ body.accepted #status-message { color: var(--color-neon-cyan); }
 /* ═══════════════════════════════════════════════
    PRIMARY ACTION (digtai.tech CTA style)
    ═══════════════════════════════════════════════ */
-.primary-action {
-  position: relative;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 14px 18px;
-  border: 1px solid color-mix(in srgb, var(--color-neon-violet) 40%, transparent);
-  background: color-mix(in srgb, var(--color-neon-violet) 8%, transparent);
-  border-radius: 8px;
-  color: var(--color-neon-violet);
+/* ═══════════════════════════════════════════════
+   Power-иконка по центру + подсказка под радаром
+   ═══════════════════════════════════════════════ */
+.power-icon {
+  position: absolute;
+  color: color-mix(in srgb, var(--radar-color) 80%, transparent);
+  transition:
+    color 0.35s ease,
+    opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
+    filter 0.5s;
+  pointer-events: none;
+  filter: drop-shadow(0 0 6px transparent);
+}
+.radar:hover .power-icon {
+  color: var(--radar-color);
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--radar-color) 60%, transparent));
+}
+/* Скрываем power-иконку с rotate-fade когда сканирование идёт или матч найден / принят */
+body.scanning .power-icon,
+body.match_found .power-icon,
+body.accepted .power-icon {
+  opacity: 0;
+  transform: scale(0.45) rotate(180deg);
+}
+
+.toggle-hint {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--color-text-faint);
+  font-family: var(--font-body);
+}
+.toggle-hint #toggle-label {
   font-family: var(--font-display);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.22em;
+  color: var(--radar-color, var(--color-neon-violet));
   text-transform: uppercase;
-  cursor: pointer;
-  overflow: hidden;
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: color 0.3s;
 }
-.primary-action:hover {
-  background: color-mix(in srgb, var(--color-neon-violet) 18%, transparent);
-  border-color: var(--color-neon-violet);
-  box-shadow: 0 0 30px -5px color-mix(in srgb, var(--color-neon-violet) 40%, transparent);
-}
-.primary-action:active { transform: translateY(1px); }
+body.scanning .toggle-hint #toggle-label { color: var(--color-neon-cyan); }
+body.match_found .toggle-hint #toggle-label { color: var(--color-neon-pink); }
+body.accepted .toggle-hint #toggle-label { color: var(--color-neon-cyan); }
 
-.pa-icon-wrap {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px; height: 18px;
-  color: var(--color-neon-violet);
-  transition: all 0.4s;
-}
-.pa-icon-stop { display: none; }
-
-.pa-label {
-  flex: 1;
-  text-align: center;
-  white-space: nowrap;
-}
-
-.pa-hotkey {
+.toggle-hint kbd {
   font-family: var(--font-display);
   font-size: 9px;
-  font-weight: 400;
-  letter-spacing: 0.1em;
-  padding: 3px 7px;
-  border: 1px solid color-mix(in srgb, var(--color-neon-violet) 30%, transparent);
+  padding: 1px 5px;
+  border: 1px solid var(--color-line-light);
   border-radius: 3px;
+  color: var(--color-text-mid);
   background: rgba(0, 0, 0, 0.3);
-  color: color-mix(in srgb, var(--color-neon-violet) 80%, transparent);
-  transition: all 0.4s;
-}
-
-/* Sweep effect on hover (digtai.tech) */
-.pa-shimmer {
-  position: absolute;
-  inset: 0;
-  -webkit-transform: translateX(-100%);
-          transform: translateX(-100%);
-  background: linear-gradient(90deg,
-    transparent,
-    color-mix(in srgb, var(--color-neon-violet) 15%, transparent),
-    transparent);
-  pointer-events: none;
-  transition: -webkit-transform 0.5s, transform 0.5s;
-}
-.primary-action:hover .pa-shimmer {
-  -webkit-transform: translateX(100%);
-          transform: translateX(100%);
-}
-.pa-glow { display: none; }
-
-/* SCANNING — кнопка превращается в "ОСТАНОВИТЬ" */
-body.scanning .primary-action {
-  background: color-mix(in srgb, var(--color-neon-cyan) 12%, transparent);
-  border-color: var(--color-neon-cyan);
-  color: var(--color-neon-cyan);
-  box-shadow: 0 0 30px -5px color-mix(in srgb, var(--color-neon-cyan) 35%, transparent);
-}
-body.scanning .primary-action:hover {
-  background: color-mix(in srgb, var(--color-error) 12%, transparent);
-  border-color: var(--color-error);
-  color: var(--color-error);
-  box-shadow: 0 0 28px -5px color-mix(in srgb, var(--color-error) 40%, transparent);
-}
-body.scanning .pa-icon-wrap { color: var(--color-neon-cyan); }
-body.scanning .primary-action:hover .pa-icon-wrap { color: var(--color-error); }
-body.scanning .pa-icon-play { display: none; }
-body.scanning .pa-icon-stop { display: inline-block; }
-body.scanning .pa-hotkey {
-  border-color: color-mix(in srgb, var(--color-neon-cyan) 40%, transparent);
-  color: var(--color-neon-cyan);
-}
-body.scanning .primary-action:hover .pa-hotkey {
-  border-color: color-mix(in srgb, var(--color-error) 40%, transparent);
-  color: var(--color-error);
+  margin: 0 1px;
 }
 
 /* ═══════════════════════════════════════════════
@@ -1316,74 +1300,6 @@ body.compact.accepted .compact-counter svg { opacity: 1; }
 body.compact.scanning #btn-compact-toggle { color: var(--color-error); }
 
 /* ═══════════════════════════════════════════════
-   POSITION PRESET MENU
-   ═══════════════════════════════════════════════ */
-.position-menu {
-  position: absolute;
-  top: 56px; right: 70px;
-  background: color-mix(in srgb, var(--color-void) 92%, transparent);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--color-line-light);
-  border-radius: 8px;
-  padding: 8px;
-  z-index: 1000;
-  box-shadow:
-    0 12px 32px rgba(0,0,0,0.7),
-    0 0 24px -6px color-mix(in srgb, var(--color-neon-violet) 25%, transparent);
-  opacity: 0;
-  transform: translateY(-6px) scale(0.95);
-  pointer-events: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.position-menu.open {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  pointer-events: auto;
-}
-body.compact .position-menu { top: auto; bottom: 56px; right: 8px; }
-
-.position-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
-}
-.position-grid button {
-  width: 32px; height: 22px;
-  border: 1px solid var(--color-line);
-  background: var(--color-surface);
-  border-radius: 3px;
-  cursor: pointer;
-  position: relative;
-  transition: all 0.15s;
-  padding: 0;
-}
-.position-grid button:hover {
-  border-color: var(--color-neon-violet);
-  background: color-mix(in srgb, var(--color-neon-violet) 8%, transparent);
-  box-shadow: 0 0 12px -2px color-mix(in srgb, var(--color-neon-violet) 30%, transparent);
-}
-.position-grid button span {
-  position: absolute;
-  width: 5px; height: 5px;
-  background: var(--color-text-mid);
-  border-radius: 1px;
-  transition: all 0.15s;
-}
-.position-grid button:hover span {
-  background: var(--color-neon-violet);
-  box-shadow: 0 0 4px var(--color-neon-violet);
-}
-.position-grid button[data-pos="tl"] span { top: 3px; left: 3px; }
-.position-grid button[data-pos="tc"] span { top: 3px; left: 50%; transform: translateX(-50%); }
-.position-grid button[data-pos="tr"] span { top: 3px; right: 3px; }
-.position-grid button[data-pos="cc"] span { top: 50%; left: 50%; transform: translate(-50%, -50%); }
-.position-grid button[data-pos="bl"] span { bottom: 3px; left: 3px; }
-.position-grid button[data-pos="bc"] span { bottom: 3px; left: 50%; transform: translateX(-50%); }
-.position-grid button[data-pos="br"] span { bottom: 3px; right: 3px; }
-.position-grid button.hidden-cell { visibility: hidden; pointer-events: none; }
-
-/* ═══════════════════════════════════════════════
    Focus accessibility
    ═══════════════════════════════════════════════ */
 :focus-visible {
@@ -1399,8 +1315,7 @@ body.compact .position-menu { top: auto; bottom: 56px; right: 8px; }
   main { padding: 12px 14px; gap: 12px; }
   .glass-card { padding: 16px 14px; border-radius: 10px; }
   #status-label { font-size: 12px; letter-spacing: 0.18em; }
-  .primary-action { padding: 12px 14px; font-size: 10px; gap: 9px; }
-  .pa-hotkey { display: none; }
+  .toggle-hint { font-size: 9px; }
 }
 @media (max-height: 540px) {
   .radar { --radar-size: 130px; margin: 4px 0 12px 0; }

@@ -2,11 +2,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnMin = document.getElementById('btn-min');
     const btnClose = document.getElementById('btn-close');
     const btnOverlay = document.getElementById('btn-overlay');
-    const btnPosition = document.getElementById('btn-position');
     const btnLock = document.getElementById('btn-lock');
     const btnCompactLock = document.getElementById('btn-compact-lock');
     const resizeHandle = document.getElementById('resize-handle');
-    const positionMenu = document.getElementById('position-menu');
     const mainSwitch = document.getElementById('main-switch');
     const toggleLabel = document.getElementById('toggle-label');
     const statusLabel = document.getElementById('status-label');
@@ -16,11 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Компактный режим
     const compactLabel = document.getElementById('compact-label');
     const compactMsg = document.getElementById('compact-msg');
-    const compactCounterValue = document.getElementById('compact-counter-value');
     const btnCompactToggle = document.getElementById('btn-compact-toggle');
     const btnCompactExpand = document.getElementById('btn-compact-expand');
     const btnCompactClose = document.getElementById('btn-compact-close');
-    const btnCompactPosition = document.getElementById('btn-compact-position');
+    const btnCompactSettings = document.getElementById('btn-compact-settings');
     // Настройки
     const btnSettings = document.getElementById('btn-settings');
     const btnSettingsClose = document.getElementById('btn-settings-close');
@@ -34,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let isCompact = false;
     let isLocked = false;
     let events = [];
-    let acceptedCount = 0;
     let currentStatus = 'idle';
 
     // ═══════════════════════════════════════════
@@ -131,7 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
         isCompact = on;
         if (on) document.body.classList.add('compact');
         else document.body.classList.remove('compact');
-        positionMenu.classList.remove('open');
     }
     btnOverlay.addEventListener('click', () => {
         if (window.pywebview && window.pywebview.api) {
@@ -150,33 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
     btnCompactToggle.addEventListener('click', () => mainSwitch.click());
 
     // ═══════════════════════════════════════════
-    //  МЕНЮ ПОЗИЦИЙ
-    // ═══════════════════════════════════════════
-    function togglePositionMenu(e) {
-        e.stopPropagation();
-        positionMenu.classList.toggle('open');
-    }
-    btnPosition.addEventListener('click', togglePositionMenu);
-    btnCompactPosition.addEventListener('click', togglePositionMenu);
-    document.addEventListener('click', (e) => {
-        if (!positionMenu.contains(e.target) &&
-            e.target !== btnPosition && !btnPosition.contains(e.target) &&
-            e.target !== btnCompactPosition && !btnCompactPosition.contains(e.target)) {
-            positionMenu.classList.remove('open');
-        }
-    });
-    positionMenu.querySelectorAll('button[data-pos]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const pos = btn.dataset.pos;
-            if (!pos) return;
-            if (window.pywebview && window.pywebview.api) {
-                window.pywebview.api.set_position_preset(pos);
-            }
-            positionMenu.classList.remove('open');
-        });
-    });
-
-    // ═══════════════════════════════════════════
     //  ГЛАВНЫЙ ПЕРЕКЛЮЧАТЕЛЬ
     // ═══════════════════════════════════════════
     function setBodyState(state) {
@@ -186,16 +154,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     mainSwitch.addEventListener('click', () => {
+        // Ripple-эффект — снимаем класс и навешиваем заново для перезапуска анимации
+        mainSwitch.classList.remove('clicked');
+        // forced reflow, чтобы анимация всегда стартовала заново
+        void mainSwitch.offsetWidth;
+        mainSwitch.classList.add('clicked');
+
         isActive = !isActive;
         if (isActive) {
             setBodyState('scanning');
-            toggleLabel.textContent = 'ОСТАНОВИТЬ СКАНИРОВАНИЕ';
+            toggleLabel.textContent = 'ОСТАНОВИТЬ';
+            mainSwitch.setAttribute('aria-label', 'Остановить сканирование');
             compactLabel.textContent = 'СКАНИРОВАНИЕ';
             compactMsg.textContent = 'Поиск матча...';
             if (window.pywebview && window.pywebview.api) window.pywebview.api.start();
         } else {
             setBodyState('');
-            toggleLabel.textContent = 'ЗАПУСТИТЬ СКАНИРОВАНИЕ';
+            toggleLabel.textContent = 'ВКЛЮЧИТЬ';
+            mainSwitch.setAttribute('aria-label', 'Запустить сканирование');
             statusLabel.textContent = 'ОЖИДАНИЕ';
             statusMessage.textContent = 'Система выключена';
             compactLabel.textContent = 'ОЖИДАНИЕ';
@@ -237,11 +213,6 @@ document.addEventListener('DOMContentLoaded', () => {
         compactLabel.textContent = text;
         compactMsg.textContent = message;
         if (chSysText) chSysText.textContent = sysLabels[status] || status.toUpperCase();
-
-        if (status === 'accepted') {
-            acceptedCount++;
-            compactCounterValue.textContent = acceptedCount;
-        }
     };
 
     window.addEventFromPython = (eventData) => {
@@ -310,6 +281,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function closeSettings() { settingsModal.classList.remove('open'); }
 
     btnSettings && btnSettings.addEventListener('click', openSettings);
+    btnCompactSettings && btnCompactSettings.addEventListener('click', () => {
+        // Из compact-режима настройки открываются в полном виде
+        if (window.pywebview && window.pywebview.api) {
+            window.pywebview.api.toggle_compact().then((compact) => {
+                setCompact(compact);
+                openSettings();
+            });
+        } else {
+            openSettings();
+        }
+    });
     btnSettingsClose && btnSettingsClose.addEventListener('click', closeSettings);
     settingsModal && settingsModal.addEventListener('click', (e) => {
         if (e.target === settingsModal) closeSettings();
