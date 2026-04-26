@@ -42,6 +42,9 @@ settings.json
 *.reg
 Thumbs.db
 
+# Local context bundle for design tools — not part of source
+_design_context/
+
 # Electron legacy
 src/
 electron.vite.config.ts

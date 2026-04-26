@@ -9,213 +9,242 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="compact">
     <div class="app-container">
-        <!-- Атмосферный фон: одно мягкое свечение, без рябей и сеток -->
         <div class="bg-orb"></div>
 
-        <!-- ════════════════════════════════════════ -->
-        <!-- FULL VIEW                                 -->
-        <!-- ════════════════════════════════════════ -->
-        <div class="full-view">
-
-        <!-- Header -->
-        <header class="drag-region">
-            <div class="logo">
-                <div class="logo-mark">
-                    <svg class="logo-svg" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#22e3ff"/>
-                                <stop offset="55%" stop-color="#8b5cf6"/>
-                                <stop offset="100%" stop-color="#5b21b6"/>
-                            </linearGradient>
-                            <linearGradient id="logo-shine" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28"/>
-                                <stop offset="50%" stop-color="#ffffff" stop-opacity="0"/>
-                            </linearGradient>
-                        </defs>
-                        <!-- Скруглённый тайл с градиентом -->
-                        <rect class="lm-tile" x="1" y="1" width="30" height="30" rx="9" fill="url(#logo-grad)"/>
-                        <!-- Глянцевый блик сверху -->
-                        <rect class="lm-shine" x="2" y="2" width="28" height="14" rx="8" fill="url(#logo-shine)"/>
-                        <!-- Буква D через evenodd (внешняя форма + внутренний вырез) -->
-                        <path class="lm-letter" fill-rule="evenodd"
-                              d="M 9 8 L 9 24 L 16.5 24 C 22 24 25.5 20.5 25.5 16 C 25.5 11.5 22 8 16.5 8 Z
-                                 M 13.5 12 L 16.5 12 C 19.5 12 21.5 14 21.5 16 C 21.5 18 19.5 20 16.5 20 L 13.5 20 Z"/>
-                        <!-- Маленькая точка-акцент справа (как зелёный индикатор) -->
-                        <circle class="lm-dot" cx="27" cy="6" r="2.4"/>
-                    </svg>
-                </div>
-                <div class="logo-text">
-                    <h1 class="logo-title">DoVay</h1>
-                    <span class="logo-bar"></span>
-                </div>
-            </div>
-            <div class="controls no-drag">
-                <button id="btn-lock" title="Закрепить позицию">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="17" x2="12" y2="22"/>
-                        <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/>
-                    </svg>
-                </button>
-                <button id="btn-settings" title="Настройки">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="3"/>
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                    </svg>
-                </button>
-                <button id="btn-overlay" title="Компактный режим">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="14" width="9" height="7" rx="1.5"/><rect x="3" y="3" width="18" height="8" rx="1.5"/>
-                    </svg>
-                </button>
-                <button id="btn-min" title="Свернуть">
-                    <svg width="12" height="2" viewBox="0 0 12 2"><rect width="12" height="2" rx="1" fill="currentColor"/></svg>
-                </button>
-                <button id="btn-close" class="close" title="Закрыть">
-                    <svg width="12" height="12" viewBox="0 0 12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg>
-                </button>
-            </div>
-            <div class="header-accent"></div>
-        </header>
-
-        <main>
-            <!-- Status Card -->
-            <div class="glass-card status-card">
-                <span class="corner tl"></span>
-                <span class="corner tr"></span>
-                <span class="corner bl"></span>
-                <span class="corner br"></span>
-
-                <!-- Mini-header: ID / title / system status -->
-                <div class="card-header">
-                    <span class="ch-id">SCN_01</span>
-                    <span class="ch-divider"></span>
-                    <span class="ch-title">MATCH FINDER</span>
-                    <span class="ch-flex"></span>
-                    <span class="ch-system" id="ch-system">
-                        <span class="ch-sys-dot"></span>
-                        <span class="ch-sys-text">STANDBY</span>
-                    </span>
-                </div>
-
-                <!-- ═════════ RADAR = TOGGLE (Amnezia VPN style) ═════════ -->
-                <div class="radar" id="main-switch" role="button" tabindex="0" aria-label="Запустить сканирование" title="Клик или SPACE — старт/стоп">
-                    <!-- Внешние угловые скобки HUD -->
-                    <span class="radar-bracket tl"></span>
-                    <span class="radar-bracket tr"></span>
-                    <span class="radar-bracket bl"></span>
-                    <span class="radar-bracket br"></span>
-
-                    <!-- Дальняя засветка -->
-                    <div class="radar-glow"></div>
-
-                    <!-- Кольца + засечки -->
-                    <div class="radar-ring r-out"></div>
-                    <div class="radar-ring r-mid"></div>
-                    <div class="radar-ring r-in"></div>
-                    <div class="radar-ticks"></div>
-
-                    <!-- Кресты-наводка -->
-                    <div class="radar-cross h"></div>
-                    <div class="radar-cross v"></div>
-
-                    <!-- Развёрстка (conic-gradient sweep) -->
-                    <div class="radar-sweep"></div>
-
-                    <!-- Пульс-кольца -->
-                    <div class="pulse p1"></div>
-                    <div class="pulse p2"></div>
-                    <div class="pulse p3"></div>
-
-                    <!-- Точка-цель (появляется на match_found) -->
-                    <div class="radar-target"></div>
-
-                    <!-- Центральное ядро (с power-иконкой когда idle) -->
-                    <div class="center-orb" id="center-orb">
-                        <div class="orb-core" id="orb-core"></div>
-                        <svg class="power-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"/>
-                            <line x1="12" y1="2" x2="12" y2="12"/>
-                        </svg>
-                        <svg class="check-icon" id="check-icon" width="22" height="18" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M1 5L5 9L13 1"/>
-                        </svg>
-                    </div>
-
-                    <!-- Подписи по углам HUD -->
-                    <span class="radar-tag tl">N-01</span>
-                    <span class="radar-tag tr">SCAN</span>
-                    <span class="radar-tag bl">3FPS</span>
-                    <span class="radar-tag br">RDY</span>
-                </div>
-
-                <h2 id="status-label">ОЖИДАНИЕ</h2>
-                <p id="status-message">Готов к запуску</p>
-                <span class="toggle-hint"><span id="toggle-label">ВКЛЮЧИТЬ</span> · клик или <kbd>SPACE</kbd></span>
-            </div>
-
-            <!-- Event Log -->
-            <div class="event-log-container">
-                <div class="log-header">
-                    <span class="log-title">СОБЫТИЯ</span>
-                    <span class="log-count" id="log-count">0</span>
-                    <div class="line"></div>
-                </div>
-                <div class="log-list" id="log-list">
-                    <div class="empty-log">
-                        <div class="empty-icon"></div>
-                        <span>Журнал пуст</span>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        </div><!-- /.full-view -->
-
-        <!-- ════════════════════════════════════════ -->
-        <!-- COMPACT HUD VIEW                          -->
-        <!-- ════════════════════════════════════════ -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!-- COMPACT OVERLAY (540×72) — основной режим                 -->
+        <!-- ═══════════════════════════════════════════════════════ -->
         <div class="compact-view">
             <div class="compact-bar drag-region">
-                <div class="compact-status">
-                    <div class="compact-radar">
-                        <span class="cr-ring"></span>
-                        <span class="cr-sweep"></span>
-                        <span class="cr-core"></span>
-                    </div>
-                    <div class="compact-text">
-                        <span class="compact-label" id="compact-label">ОЖИДАНИЕ</span>
-                        <span class="compact-msg" id="compact-msg">Готов</span>
-                    </div>
+                <!-- Радар = on/off авто-акцепта -->
+                <button class="ov-radar no-drag" id="main-switch"
+                        title="Авто-акцепт: клик или SPACE">
+                    <span class="cr-ring"></span>
+                    <span class="cr-sweep"></span>
+                    <span class="cr-core"></span>
+                </button>
+
+                <!-- Статус / алерт (расширяющаяся зона) -->
+                <div class="ov-status">
+                    <span class="ov-label" id="compact-label">ОЖИДАНИЕ</span>
+                    <span class="ov-msg" id="compact-msg">—</span>
                 </div>
-                <div class="compact-controls no-drag">
+
+                <!-- Алерт (поверх статуса при streak/late) -->
+                <div class="ov-alert" id="ov-alert" hidden>
+                    <span class="ov-alert-icon">!</span>
+                    <span class="ov-alert-text" id="ov-alert-text">УСТАЛ</span>
+                    <button class="ov-alert-close no-drag" id="ov-alert-dismiss"
+                            title="Скрыть до завтра">×</button>
+                </div>
+
+                <!-- W/L счётчики -->
+                <div class="ov-stat win">
+                    <span class="ov-stat-key">W</span>
+                    <span class="ov-stat-val" id="stat-wins">0</span>
+                </div>
+                <div class="ov-stat loss" id="stat-loss-cell">
+                    <span class="ov-stat-key">L</span>
+                    <span class="ov-stat-val" id="stat-losses">0</span>
+                </div>
+
+                <!-- Кнопки +W / +L -->
+                <div class="ov-actions no-drag">
+                    <button class="ov-mark win" id="btn-add-win" title="Записать победу">+W</button>
+                    <button class="ov-mark loss" id="btn-add-loss" title="Записать поражение">+L</button>
+                </div>
+
+                <!-- Таймер сессии -->
+                <div class="ov-timer">
+                    <span class="ov-timer-icon">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="9"/>
+                            <polyline points="12 7 12 12 15 14"/>
+                        </svg>
+                    </span>
+                    <span class="ov-timer-val" id="session-timer">00:00</span>
+                </div>
+
+                <!-- Управление окном -->
+                <div class="ov-controls no-drag">
                     <button id="btn-compact-lock" class="compact-btn" title="Закрепить позицию">
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="12" y1="17" x2="12" y2="22"/>
                             <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/>
                         </svg>
                     </button>
-                    <button id="btn-compact-toggle" class="compact-btn" title="Старт/стоп">
-                        <svg width="9" height="11" viewBox="0 0 9 11" fill="currentColor">
-                            <polygon points="0,0 9,5.5 0,11"/>
-                        </svg>
-                    </button>
-                    <button id="btn-compact-settings" class="compact-btn" title="Настройки">
+                    <button id="btn-compact-expand" class="compact-btn" title="Настройки и статистика">
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="3"/>
                             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
                         </svg>
-                    </button>
-                    <button id="btn-compact-expand" class="compact-btn" title="Развернуть">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
                     </button>
                     <button id="btn-compact-close" class="compact-btn close" title="Закрыть">
                         <svg width="10" height="10" viewBox="0 0 12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg>
                     </button>
                 </div>
             </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!-- FULL VIEW = Settings & Stats panel (420×660)              -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <div class="full-view">
+            <header class="drag-region">
+                <div class="logo">
+                    <div class="logo-mark">
+                        <svg class="logo-svg" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#22e3ff"/>
+                                    <stop offset="55%" stop-color="#8b5cf6"/>
+                                    <stop offset="100%" stop-color="#5b21b6"/>
+                                </linearGradient>
+                                <linearGradient id="logo-shine" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28"/>
+                                    <stop offset="50%" stop-color="#ffffff" stop-opacity="0"/>
+                                </linearGradient>
+                            </defs>
+                            <rect class="lm-tile" x="1" y="1" width="30" height="30" rx="9" fill="url(#logo-grad)"/>
+                            <rect class="lm-shine" x="2" y="2" width="28" height="14" rx="8" fill="url(#logo-shine)"/>
+                            <path class="lm-letter" fill-rule="evenodd"
+                                  d="M 9 8 L 9 24 L 16.5 24 C 22 24 25.5 20.5 25.5 16 C 25.5 11.5 22 8 16.5 8 Z
+                                     M 13.5 12 L 16.5 12 C 19.5 12 21.5 14 21.5 16 C 21.5 18 19.5 20 16.5 20 L 13.5 20 Z"/>
+                            <circle class="lm-dot" cx="27" cy="6" r="2.4"/>
+                        </svg>
+                    </div>
+                    <div class="logo-text">
+                        <h1 class="logo-title">DoVay</h1>
+                        <span class="logo-sub">Dota Companion</span>
+                    </div>
+                </div>
+                <div class="controls no-drag">
+                    <button id="btn-collapse" class="collapse-btn" title="Вернуться в оверлей">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="4 14 10 14 10 20"/>
+                            <polyline points="20 10 14 10 14 4"/>
+                            <line x1="14" y1="10" x2="21" y2="3"/>
+                            <line x1="3" y1="21" x2="10" y2="14"/>
+                        </svg>
+                        <span class="collapse-label">в оверлей</span>
+                    </button>
+                    <button id="btn-min" title="Свернуть">
+                        <svg width="12" height="2" viewBox="0 0 12 2"><rect width="12" height="2" rx="1" fill="currentColor"/></svg>
+                    </button>
+                    <button id="btn-close" class="close" title="Закрыть приложение">
+                        <svg width="12" height="12" viewBox="0 0 12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg>
+                    </button>
+                </div>
+                <div class="header-accent"></div>
+            </header>
+
+            <main>
+                <!-- ═════ СЕССИЯ ═════ -->
+                <section class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">СЕССИЯ</span>
+                        <span class="panel-line"></span>
+                        <span class="panel-meta" id="panel-date">—</span>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card win">
+                            <span class="stat-card-label">ПОБЕДЫ</span>
+                            <span class="stat-card-val" id="full-wins">0</span>
+                        </div>
+                        <div class="stat-card loss" id="full-loss-card">
+                            <span class="stat-card-label">ПОРАЖЕНИЯ</span>
+                            <span class="stat-card-val" id="full-losses">0</span>
+                            <span class="stat-card-streak" id="full-streak" hidden>стрик · <b>0</b></span>
+                        </div>
+                        <div class="stat-card timer">
+                            <span class="stat-card-label">ВРЕМЯ</span>
+                            <span class="stat-card-val" id="full-timer">00:00</span>
+                        </div>
+                    </div>
+                    <div class="stats-actions">
+                        <button class="action-btn" id="btn-mark-win">+ Победа</button>
+                        <button class="action-btn loss" id="btn-mark-loss">+ Поражение</button>
+                        <button class="action-btn ghost" id="btn-reset-session">Сбросить</button>
+                    </div>
+                </section>
+
+                <!-- ═════ ЛИМИТЫ ═════ -->
+                <section class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">ЛИМИТЫ</span>
+                        <span class="panel-line"></span>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-label">
+                            <span class="setting-name">Серия поражений</span>
+                            <span class="setting-value" id="streak-value">3</span>
+                        </div>
+                        <input type="range" id="streak-slider" class="setting-slider"
+                               min="0" max="10" step="1" value="3">
+                        <span class="setting-hint">0 — выключить алерт</span>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-label">
+                            <span class="setting-name">Напоминание «поздно»</span>
+                            <span class="setting-value" id="late-value">23:00</span>
+                        </div>
+                        <input type="range" id="late-slider" class="setting-slider"
+                               min="0" max="26" step="1" value="23">
+                        <span class="setting-hint">0 — выкл · 24+ — за полночь</span>
+                    </div>
+                </section>
+
+                <!-- ═════ АВТО-АКЦЕПТ ═════ -->
+                <section class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">АВТО-АКЦЕПТ</span>
+                        <span class="panel-line"></span>
+                    </div>
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <span class="toggle-name">Авто-приём матча</span>
+                            <span class="toggle-hint-small">Радар в оверлее: клик или SPACE</span>
+                        </div>
+                        <button class="switch" id="auto-accept-switch" role="switch" aria-checked="true">
+                            <span class="switch-knob"></span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- ═════ ВИД ═════ -->
+                <section class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">ВИД</span>
+                        <span class="panel-line"></span>
+                    </div>
+                    <div class="setting-row">
+                        <div class="setting-label">
+                            <span class="setting-name">Прозрачность оверлея</span>
+                            <span class="setting-value" id="alpha-value">92%</span>
+                        </div>
+                        <input type="range" id="alpha-slider" class="setting-slider"
+                               min="40" max="100" step="1" value="92">
+                    </div>
+                </section>
+
+                <!-- ═════ СОБЫТИЯ ═════ -->
+                <section class="panel events">
+                    <div class="panel-header">
+                        <span class="panel-title">СОБЫТИЯ</span>
+                        <span class="log-count" id="log-count">0</span>
+                        <span class="panel-line"></span>
+                    </div>
+                    <div class="log-list" id="log-list">
+                        <div class="empty-log">
+                            <span>журнал пуст</span>
+                        </div>
+                    </div>
+                </section>
+            </main>
         </div>
 
         <!-- Resize handle (только в полном режиме) -->
@@ -225,31 +254,6 @@
                 <line x1="13" y1="9" x2="9" y2="13"/>
                 <line x1="13" y1="13" x2="13" y2="13"/>
             </svg>
-        </div>
-
-
-        <!-- ════════════════════════════════════════ -->
-        <!-- SETTINGS MODAL                            -->
-        <!-- ════════════════════════════════════════ -->
-        <div class="settings-modal" id="settings-modal">
-            <div class="settings-panel no-drag">
-                <div class="settings-header">
-                    <span class="settings-title">НАСТРОЙКИ</span>
-                    <button id="btn-settings-close" class="settings-close" title="Закрыть">
-                        <svg width="11" height="11" viewBox="0 0 12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="2" x2="10" y2="10"/><line x1="10" y1="2" x2="2" y2="10"/></svg>
-                    </button>
-                </div>
-                <div class="settings-body">
-                    <div class="setting-row">
-                        <div class="setting-label">
-                            <span class="setting-name">Прозрачность оверлея</span>
-                            <span class="setting-value" id="alpha-value">92%</span>
-                        </div>
-                        <input type="range" id="alpha-slider" class="setting-slider" min="40" max="100" step="1" value="92">
-                        <span class="setting-hint">В компактном режиме</span>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
     <script src="script.js"></script>

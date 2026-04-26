@@ -123,25 +123,55 @@ def click_mouse(x, y):
 # ═══════════════════════════════════════════════
 #  API (мост Python ↔ JavaScript)
 # ═══════════════════════════════════════════════
+def _today_str():
+    return datetime.date.today().isoformat()
+
+
 class Api:
     def __init__(self):
         self._window = None
         self._hwnd = None
         self.loop_active = False
-        self.compact_mode = False
+        # Стартуем сразу в компактном (overlay) режиме
+        self.compact_mode = True
         self.position_locked = False
-        self._saved_size = (420, 720)
-        self._saved_pos = None
         self._resize_start = None
-        # Прозрачность оверлея (0–255), хранится как процент 40–100
+
         self._settings = _load_settings()
         self.overlay_alpha_pct = int(self._settings.get('overlay_alpha_pct', 92))
+
+        # Лимиты / поведение
+        self.loss_streak_limit = int(self._settings.get('loss_streak_limit', 3))
+        # late_hour: 0 = выключено, иначе 18..26 (>24 — за полночь)
+        self.late_hour = int(self._settings.get('late_hour', 23))
+        self.auto_accept_enabled = bool(self._settings.get('auto_accept_enabled', True))
+
+        # Статистика дня (W/L), автосброс на новый день
+        today = _today_str()
+        if self._settings.get('stats_date') != today:
+            self._settings['stats_date'] = today
+            self._settings['wins'] = 0
+            self._settings['losses'] = 0
+            self._settings['loss_streak'] = 0
+            self._settings['late_alert_dismissed_date'] = ''
+            _save_settings(self._settings)
+        self.wins = int(self._settings.get('wins', 0))
+        self.losses = int(self._settings.get('losses', 0))
+        self.loss_streak = int(self._settings.get('loss_streak', 0))
+        self.late_alert_dismissed_date = str(self._settings.get('late_alert_dismissed_date', ''))
+
+        # Сессия = с момента запуска приложения
+        self.session_start_ts = time.time()
 
     def set_window(self, window):
         self._window = window
 
+    # ─── Авто-акцепт сканер ───────────────────────────
     def start(self):
         if self.loop_active: return
+        if not self.auto_accept_enabled:
+            self.send_event('info', 'Авто-акцепт выключен в настройках')
+            return
         self.loop_active = True
         self.send_event('info', 'Сканирование запущено')
         threading.Thread(target=self._scanner_loop, daemon=True).start()
@@ -150,8 +180,133 @@ class Api:
         self.loop_active = False
         self.send_event('info', 'Сканирование остановлено')
 
+    def set_auto_accept_enabled(self, enabled):
+        self.auto_accept_enabled = bool(enabled)
+        self._settings['auto_accept_enabled'] = self.auto_accept_enabled
+        _save_settings(self._settings)
+        if not self.auto_accept_enabled and self.loop_active:
+            self.stop()
+        return self.auto_accept_enabled
+
     def close(self):
         if self._window: self._window.destroy()
+
+    # ─── Статистика W/L ───────────────────────────────
+    def _persist_stats(self):
+        self._settings['stats_date'] = _today_str()
+        self._settings['wins'] = self.wins
+        self._settings['losses'] = self.losses
+        self._settings['loss_streak'] = self.loss_streak
+        self._settings['late_alert_dismissed_date'] = self.late_alert_dismissed_date
+        _save_settings(self._settings)
+
+    def _ensure_today(self):
+        """Если сменился день — обнуляем счётчики (но НЕ сессионный таймер,
+        он живёт пока приложение запущено)."""
+        if self._settings.get('stats_date') != _today_str():
+            self.wins = 0
+            self.losses = 0
+            self.loss_streak = 0
+            self.late_alert_dismissed_date = ''
+            self._persist_stats()
+
+    def add_win(self):
+        self._ensure_today()
+        self.wins += 1
+        self.loss_streak = 0
+        self._persist_stats()
+        self.send_event('success', f'+W ({self.wins}W {self.losses}L)')
+        return self.get_stats()
+
+    def add_loss(self):
+        self._ensure_today()
+        self.losses += 1
+        self.loss_streak += 1
+        self._persist_stats()
+        self.send_event('error', f'+L ({self.wins}W {self.losses}L · стрик {self.loss_streak})')
+        if self.loss_streak >= self.loss_streak_limit and self.loss_streak_limit > 0:
+            self.send_event('error', f'⚠ {self.loss_streak} поражений подряд — пора сделать паузу')
+        return self.get_stats()
+
+    def undo_last(self):
+        """Откат последней отметки нельзя сделать точно (не храним историю),
+        но можно уменьшить wins/losses вручную через кнопки (убрали из UI)."""
+        return self.get_stats()
+
+    def reset_session(self):
+        """Сброс счётчиков и таймера сессии."""
+        self.wins = 0
+        self.losses = 0
+        self.loss_streak = 0
+        self.late_alert_dismissed_date = ''
+        self.session_start_ts = time.time()
+        self._persist_stats()
+        self.send_event('info', 'Сессия сброшена')
+        return self.get_stats()
+
+    def _streak_alert(self):
+        return self.loss_streak_limit > 0 and self.loss_streak >= self.loss_streak_limit
+
+    def _late_alert(self):
+        if not self.late_hour or self.late_hour <= 0:
+            return False
+        if self.late_alert_dismissed_date == _today_str():
+            return False
+        # Поздний час: late_hour 18..26 — поддержка «за полночь» (25 = 01:00)
+        h = datetime.datetime.now().hour
+        lh = self.late_hour % 24
+        if self.late_hour >= 24:
+            # Например late_hour=25 → алерт с 01:00 до утра (4–6)
+            return 0 <= h < (self.late_hour - 24 + 4)
+        # Стандарт: после late_hour и до 6 утра
+        return h >= lh or h < 6
+
+    def get_stats(self):
+        self._ensure_today()
+        return {
+            'wins': self.wins,
+            'losses': self.losses,
+            'loss_streak': self.loss_streak,
+            'session_start_ts': self.session_start_ts,
+            'now_ts': time.time(),
+            'streak_alert': self._streak_alert(),
+            'late_alert': self._late_alert(),
+            'date': _today_str(),
+        }
+
+    def dismiss_late_alert(self):
+        self.late_alert_dismissed_date = _today_str()
+        self._persist_stats()
+        return self.get_stats()
+
+    # ─── Настройки ────────────────────────────────────
+    def get_settings(self):
+        return {
+            'overlay_alpha_pct': self.overlay_alpha_pct,
+            'loss_streak_limit': self.loss_streak_limit,
+            'late_hour': self.late_hour,
+            'auto_accept_enabled': self.auto_accept_enabled,
+        }
+
+    def set_loss_streak_limit(self, n):
+        try:
+            n = max(0, min(20, int(n)))
+        except (TypeError, ValueError):
+            return self.loss_streak_limit
+        self.loss_streak_limit = n
+        self._settings['loss_streak_limit'] = n
+        _save_settings(self._settings)
+        return n
+
+    def set_late_hour(self, h):
+        try:
+            h = max(0, min(26, int(h)))
+        except (TypeError, ValueError):
+            return self.late_hour
+        self.late_hour = h
+        self._settings['late_hour'] = h
+        _save_settings(self._settings)
+        return h
 
     def minimize(self):
         if self._window: self._window.minimize()
@@ -193,28 +348,41 @@ class Api:
         self._window.resize(int(new_w), int(new_h))
 
     def toggle_compact(self):
-        """Переключаем компактный HUD ↔ полный интерфейс"""
+        """Переключаем compact-overlay ↔ панель настроек.
+        Запоминаем позиции и размеры обоих режимов отдельно."""
         if not self._window:
             return self.compact_mode
-        self.compact_mode = not self.compact_mode
+        try:
+            cur_size = (self._window.width, self._window.height)
+            cur_pos = (self._window.x, self._window.y)
+        except Exception:
+            cur_size = (540, 72) if self.compact_mode else (420, 660)
+            cur_pos = None
+
         if self.compact_mode:
-            try:
-                self._saved_size = (self._window.width, self._window.height)
-                self._saved_pos = (self._window.x, self._window.y)
-            except Exception:
-                pass
-            self._window.resize(300, 64)
-            if self._hwnd:
-                _apply_layered_transparency(self._hwnd, True, self._alpha_byte())
-            self.send_event('info', 'Компактный режим')
-        else:
+            # compact → full (панель настроек)
+            self._compact_size = cur_size
+            self._compact_pos = cur_pos
+            self.compact_mode = False
             if self._hwnd:
                 _apply_layered_transparency(self._hwnd, False)
-            w, h = self._saved_size
-            self._window.resize(w, h)
-            if self._saved_pos:
-                self._window.move(*self._saved_pos)
-            self.send_event('info', 'Полный режим')
+            full_size = getattr(self, '_full_size', (420, 660))
+            self._window.resize(*full_size)
+            full_pos = getattr(self, '_full_pos', None)
+            if full_pos:
+                self._window.move(*full_pos)
+        else:
+            # full → compact (overlay)
+            self._full_size = cur_size
+            self._full_pos = cur_pos
+            self.compact_mode = True
+            compact_size = getattr(self, '_compact_size', (540, 72))
+            self._window.resize(*compact_size)
+            compact_pos = getattr(self, '_compact_pos', None)
+            if compact_pos:
+                self._window.move(*compact_pos)
+            if self._hwnd:
+                _apply_layered_transparency(self._hwnd, True, self._alpha_byte())
         return self.compact_mode
 
     def _alpha_byte(self):
@@ -445,6 +613,17 @@ def on_started(api):
     if hwnd:
         api._hwnd = hwnd
         _round_window_corners(hwnd)
+        # Стартуем сразу в overlay-режиме — применяем layered transparency
+        if api.compact_mode:
+            _apply_layered_transparency(hwnd, True, api._alpha_byte())
+            # Сообщаем JS, что мы в compact (на всякий случай — body class уже есть)
+            try:
+                api._window.evaluate_js("document.body.classList.add('compact')")
+            except Exception:
+                pass
+            # Если включён авто-акцепт — сразу запускаем сканер
+            if api.auto_accept_enabled:
+                api.start()
         print(f"[OK] HWND: {hwnd}")
     else:
         print("[WARN] HWND not found")
@@ -461,13 +640,14 @@ if __name__ == '__main__':
         print(f"File not found: {html_path}")
         exit(1)
         
+    # Стартуем в compact-overlay режиме (540×72)
     window = webview.create_window(
         'DoVay',
         url=f'file:///{html_path}',
         js_api=api,
-        width=420,
-        height=720,
-        min_size=(300, 60),
+        width=540,
+        height=72,
+        min_size=(320, 60),
         frameless=True,
         easy_drag=False,
         resizable=True,
